@@ -2,6 +2,8 @@
 
 Low-level Minimalistic wrapper for HTML5 IndexedDB API.
 
+See `test.js` for examples.
+
 ## Install
 
 ```bash
@@ -40,7 +42,19 @@ people.add({ name: 'foo', email: 'bar@qux.com' }, error => console.log(error))
 
 Store method to get a document by key value.
 
-Parameters: `store.get(id, callback)`
+Parameters: `store.get(key, callback)`
+
+```js
+people.get(1, (error, result) => console.log(error, result))
+```
+
+#### `.get`
+
+Store method to iterate all documents in the store.
+
+```js
+people.cursor((error, result) => console.log(error, result))
+```
 
 #### `.select`
 
