@@ -1,3 +1,5 @@
+'strict mode'
+
 const test = require("prova");
 const createDB = require("./");
 
@@ -133,8 +135,8 @@ test('searching by tag', function (t) {
   const people = store(randomDB())
   t.plan(9)
 
-  let ctr = -1;
-  let expected = [
+  var ctr = -1;
+  var expected = [
     { id: 1, name: 'azer' },
     { id: 3, name: 'foo' }
   ];
