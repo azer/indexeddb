@@ -70,16 +70,31 @@ people.select('email', 'bar@qux.com' }, (error, result) => console.log(error, re
 
 Store method to get document(s) selecting by index and range.
 
-Parameters: `store.selectRange(indexName, rangeOptions, callback)`
+Parameters: `store.selectRange(indexName, rangeOptions, direction <optional>, callback)`
 
 Range options must have at least one of these properties:
-* from
-* to
-* only
+* `from`
+* `to`
+* `only`
 
 ```js
-people.selectRange('name', { from: 'a', to: 'e' }, (error, result) => console.log(error, result))
+people.selectRange('name', { from: 'a', to: 'e' }, (error, result) => {
+    console.log(error, result)
+    result.continue()
+})
 ```
+
+You can optionally choose direction parameter for getting results sorted. Direction paramters are:
+* `prev` (descending)
+* `next` (ascending)
+
+```js
+people.selectRange('name', { from: 'a', to: 'e' }, 'prev', (error, result) => {
+    console.log(error, result)
+    result.continue()
+})
+```
+
 
 #### `.update`
 

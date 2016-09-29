@@ -133,7 +133,7 @@ test('count', function (t) {
 
 test('searching by tag', function (t) {
   const people = store(randomDB())
-  t.plan(9)
+  t.plan(10)
 
   var ctr = -1;
   var expected = [
@@ -164,13 +164,50 @@ test('searching by tag', function (t) {
   })
 })
 
+test('sorting by index', function (t) {
+  const people = store(randomDB())
+  t.plan(15)
+
+  var desc = [30, 29, 26]
+  var asc = [26, 29, 30]
+  var dctr = -1
+  var actr = -1
+
+  people.add({ name: 'azer', email: 'azer@roadbeats.com', age: 29 }, (error, id) => {
+    t.error(error)
+
+    people.add({ name: 'nova', email: 'nova@roadbeats.com', age: 26 }, (error, id) => {
+      t.error(error)
+
+      people.add({ name: 'foo', email: 'foo@roadbeats.com', age: 30 }, (error, id) => {
+        t.error(error)
+
+        people.selectRange('age', null, 'prev', function (error, result) {
+          t.error(error)
+          dctr++
+          t.equal(result.value.age, desc[dctr])
+          result.continue()
+        })
+
+        people.selectRange('age', null, 'next', function (error, result) {
+          t.error(error)
+          actr++
+          t.equal(result.value.age, asc[actr])
+          result.continue()
+        })
+      })
+    })
+  })
+})
+
 function store (db) {
   return db.store('people', {
     key: { autoIncrement: true, keyPath: 'id' },
     indexes: [
       { name: 'email', options: { unique: true } },
       { name: 'name', options: { unique: false } },
-      { name: 'tags', options: { multiEntry: true, unique: false } }
+      { name: 'tags', options: { multiEntry: true, unique: false } },
+      { name: 'age', options: { unique: false } }
     ]
   })
 }
