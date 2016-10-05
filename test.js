@@ -166,7 +166,7 @@ test('searching by tag', function (t) {
 
 test('sorting by index', function (t) {
   const people = store(randomDB())
-  t.plan(15)
+  t.plan(17)
 
   var desc = [30, 29, 26]
   var asc = [26, 29, 30]
@@ -212,9 +212,9 @@ function store (db) {
   })
 }
 
-function randomDB () {
-  return createDB(`testing-${Math.floor(Math.random()*99999)}`, {
-    version: 1
+function randomDB (name, version) {
+  return createDB(name || `testing-${Math.floor(Math.random()*99999)}`, {
+    version: version || 1
   })
 }
 
