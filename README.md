@@ -38,6 +38,14 @@ Parameters: `store.add(document, callback)`
 people.add({ name: 'foo', email: 'bar@qux.com' }, error => console.log(error))
 ```
 
+#### `.all`
+
+Store method to iterate all documents in the store.
+
+```js
+people.cursor((error, result) => console.log(error, result))
+```
+
 #### `.get`
 
 Store method to get a document by key value.
@@ -48,29 +56,21 @@ Parameters: `store.get(key, callback)`
 people.get(1, (error, result) => console.log(error, result))
 ```
 
-#### `.get`
+#### `.getByIndex`
 
-Store method to iterate all documents in the store.
+Store method to get document(s) matching given index key and value.
+
+Parameters: `store.getByIndex(indexName, indexValue, callback)`
 
 ```js
-people.cursor((error, result) => console.log(error, result))
+people.getByIndex('email', 'bar@qux.com' }, (error, result) => console.log(error, result))
 ```
 
 #### `.select`
 
-Store method to get document(s) matching given index key and value.
+Store method to get document(s) selecting by index, range and/or expected values.
 
-Parameters: `store.select(indexName, indexValue, callback)`
-
-```js
-people.select('email', 'bar@qux.com' }, (error, result) => console.log(error, result))
-```
-
-#### `.selectRange`
-
-Store method to get document(s) selecting by index and range.
-
-Parameters: `store.selectRange(indexName, rangeOptions, direction <optional>, callback)`
+Parameters: `store.select(indexName, rangeOptions, direction <optional>, callback)`
 
 Range options must have at least one of these properties:
 * `from`
@@ -78,7 +78,7 @@ Range options must have at least one of these properties:
 * `only`
 
 ```js
-people.selectRange('name', { from: 'a', to: 'e' }, (error, result) => {
+people.select('name', { from: 'a', to: 'e' }, (error, result) => {
     console.log(error, result)
     result.continue()
 })
@@ -89,7 +89,7 @@ You can optionally choose direction parameter for getting results sorted. Direct
 * `next` (ascending)
 
 ```js
-people.selectRange('name', { from: 'a', to: 'e' }, 'prev', (error, result) => {
+people.select('name', { from: 'a', to: 'e' }, 'prev', (error, result) => {
     console.log(error, result)
     result.continue()
 })
@@ -109,7 +109,16 @@ const people = db.store('people', {
 Now we can select people by age and country:
 
 ```js
-people.selectRange('age+country', ['20', 'jamaika'], (error, result) => {
+people.select('age+country', ['20', 'jamaika'], (error, result) => {
+    console.log(error, result)
+    result.continue()
+})
+```
+
+`from` and `to` options provides us more flexibility here:
+
+```js
+people.select('age+country', { from: ['20', 'jamaika'], to: [30, 'jamaika'] }, (error, result) => {
     console.log(error, result)
     result.continue()
 })

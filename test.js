@@ -61,7 +61,7 @@ test('delete', function (t) {
   })
 });
 
-test('select', function (t) {
+test('getByIndex', function (t) {
   const people = store(randomDB())
   t.plan(6)
 
@@ -71,12 +71,14 @@ test('select', function (t) {
     people.add({ name: 'nova', email: 'nova@roadbeats.com' }, (error, id) => {
       t.error(error)
 
-      people.select('name', 'azer', (error, result) => {
+      people.getByIndex('name', 'azer', (error, result) => {
         t.error(error)
 
         t.equal(result.id, 1)
         t.equal(result.name, 'azer')
         t.equal(result.email, 'azer@roadbeats.com')
+
+        deleteDB(people.db.name)
       })
     })
   })
@@ -95,7 +97,7 @@ test('select range', function (t) {
       people.add({ name: 'foo', email: 'foo@roadbeats.com' }, (error, id) => {
         t.error(error)
 
-        people.selectRange('name', { from: 'b', to: 'g' }, (error, result) => {
+        people.select('name', { from: 'b', to: 'g' }, (error, result) => {
           t.error(error)
 
           t.equal(result.value.id, 3)
@@ -150,7 +152,7 @@ test('searching by tag', function (t) {
       people.add({ name: 'foo', email: 'foo@roadbeats.com', tags: ['software', 'testing'] }, (error, id) => {
         t.error(error)
 
-        people.selectRange('tags', { only: 'software' }, (error, result) => {
+        people.select('tags', { only: 'software' }, (error, result) => {
           t.error(error)
 
           ctr++;
@@ -182,14 +184,14 @@ test('sorting by index', function (t) {
       people.add({ name: 'foo', email: 'foo@roadbeats.com', age: 30 }, (error, id) => {
         t.error(error)
 
-        people.selectRange('age', null, 'prev', function (error, result) {
+        people.select('age', null, 'prev', function (error, result) {
           t.error(error)
           dctr++
           t.equal(result.value.age, desc[dctr])
           result.continue()
         })
 
-        people.selectRange('age', null, 'next', function (error, result) {
+        people.select('age', null, 'next', function (error, result) {
           t.error(error)
           actr++
           t.equal(result.value.age, asc[actr])
@@ -203,24 +205,38 @@ test('sorting by index', function (t) {
 test('selecting range with multiple indexes', function (t) {
   const people = store(randomDB())
 
-  const expected = [1]
-  let ctr = -1
-
-  t.plan(6)
+  t.plan(11)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com', age: 29 }, (error, id) => {
     t.error(error)
 
-    people.add({ name: 'nova', email: 'nova@roadbeats.com', age: 26 }, (error, id) => {
+    people.add({ name: 'azer', email: 'azer1@roadbeats.com', age: 30 }, (error, id) => {
       t.error(error)
 
-      people.add({ name: 'ammar', email: 'foo@roadbeats.com', age: 29 }, (error, id) => {
+      people.add({ name: 'apo', email: 'aziz@roadbeats.com', age: 26 }, (error, id) => {
         t.error(error)
 
-        people.selectRange('name+age', ['azer', 29], (error, result) => {
+        people.add({ name: 'ammar', email: 'ammar@roadbeats.com', age: 31 }, (error, id) => {
           t.error(error)
-          t.ok(ctr < 2)
-          t.equal(result.value.id, expected[++ctr])
+
+          const expected1 = [1]
+          let ctr1 = -1
+
+          people.select('name+age', ['azer', '31'], (error, result) => {
+            t.error(error)
+            if (!result) return
+            t.equal(result.value.id, expected1[++ctr1])
+            result.continue()
+          })
+
+          const expected2 = [4, 3]
+          let ctr2 = -1
+          people.select('name+age', { from: ['a', 20], to: ['ap' + '\uffff', 30] }, (error, result) => {
+            t.error(error)
+            if (!result) return
+            t.equal(result.value.id, expected2[++ctr2])
+            result.continue()
+          })
         })
       })
     })
@@ -235,7 +251,7 @@ function store (db) {
       { name: 'name', options: { unique: false } },
       { name: 'tags', options: { multiEntry: true, unique: false } },
       { name: 'age', options: { unique: false } },
-      { name: 'name+age', fields: ["name", "age"] }
+      { name: 'name+age', fields: ["name", "age"], options: { unique: false } }
     ]
   })
 }
