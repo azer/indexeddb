@@ -222,7 +222,7 @@ test('selecting range with multiple indexes', function (t) {
           const expected1 = [1]
           let ctr1 = -1
 
-          people.select('name+age', ['azer', '31'], (error, result) => {
+          people.select('name+age', ['azer', 29], (error, result) => {
             t.error(error)
             if (!result) return
             t.equal(result.value.id, expected1[++ctr1])
@@ -248,10 +248,10 @@ function store (db) {
     key: { autoIncrement: true, keyPath: 'id' },
     indexes: [
       { name: 'email', options: { unique: true } },
-      { name: 'name', options: { unique: false } },
       { name: 'tags', options: { multiEntry: true, unique: false } },
-      { name: 'age', options: { unique: false } },
-      { name: 'name+age', fields: ["name", "age"], options: { unique: false } }
+      { name: 'name+age', fields: ["name", "age"] },
+      'name',
+      'age',
     ]
   })
 }

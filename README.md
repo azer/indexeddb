@@ -23,7 +23,9 @@ const db = require('indexeddb')('mydb', {
 const people = db.store('people', {
     key: { autoIncrement: true, keyPath: 'id' },
     indexes: [
-        { name: 'email', options: { unique: true } }
+      { name: 'email', options: { unique: true } },
+      'name',
+      'country'
     ]
 })
 ```
