@@ -152,6 +152,21 @@ Store method to count all records.
 people.count(error, count => console.log(error, count))
 ```
 
+#### `.upgrade`
+
+Store option to perform upgrade when there is a version change. It's an optional method.
+
+```js
+const people = db.store('people', {
+    key: { autoIncrement: true, keyPath: 'id' },
+    upgrade: upgrade
+})
+
+function upgrade () {
+  people.createIndex('name', { unique: false })
+}
+```
+
 ## Examples
 
 See `test.js`
