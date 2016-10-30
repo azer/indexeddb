@@ -111,7 +111,7 @@ const people = db.store('people', {
 Now we can select people by age and country:
 
 ```js
-people.select('age+country', ['20', 'jamaika'], (error, result) => {
+people.select('age+country', [20, 'jamaika'], (error, result) => {
     console.log(error, result)
     result.continue()
 })
@@ -120,7 +120,7 @@ people.select('age+country', ['20', 'jamaika'], (error, result) => {
 `from` and `to` options provides us more flexibility here:
 
 ```js
-people.select('age+country', { from: ['20', 'jamaika'], to: [30, 'jamaika'] }, (error, result) => {
+people.select('age+country', { from: [20, 'jamaika'], to: [30, 'jamaika'] }, (error, result) => {
     console.log(error, result)
     result.continue()
 })
