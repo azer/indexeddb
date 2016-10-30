@@ -45,7 +45,7 @@ people.add({ name: 'foo', email: 'bar@qux.com' }, error => console.log(error))
 Store method to iterate all documents in the store.
 
 ```js
-people.cursor((error, result) => console.log(error, result))
+people.all((error, result) => console.log(error, result))
 ```
 
 #### `.get`
