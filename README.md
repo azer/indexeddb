@@ -74,7 +74,7 @@ Store method to get document(s) selecting by index, range and/or expected values
 
 Parameters: `store.select(indexName, rangeOptions, direction <optional>, callback)`
 
-Range options must have at least one of these properties:
+Range options can be expected values or have an object with following properties;
 * `from`
 * `to`
 * `only`
