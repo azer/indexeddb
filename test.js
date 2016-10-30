@@ -200,6 +200,33 @@ test('sorting by index', function (t) {
   })
 })
 
+test('selecting range with multiple indexes', function (t) {
+  const people = store(randomDB())
+
+  const expected = [1]
+  let ctr = -1
+
+  t.plan(6)
+
+  people.add({ name: 'azer', email: 'azer@roadbeats.com', age: 29 }, (error, id) => {
+    t.error(error)
+
+    people.add({ name: 'nova', email: 'nova@roadbeats.com', age: 26 }, (error, id) => {
+      t.error(error)
+
+      people.add({ name: 'ammar', email: 'foo@roadbeats.com', age: 29 }, (error, id) => {
+        t.error(error)
+
+        people.selectRange('name+age', ['azer', 29], (error, result) => {
+          t.error(error)
+          t.ok(ctr < 2)
+          t.equal(result.value.id, expected[++ctr])
+        })
+      })
+    })
+  })
+})
+
 function store (db) {
   return db.store('people', {
     key: { autoIncrement: true, keyPath: 'id' },
@@ -207,7 +234,8 @@ function store (db) {
       { name: 'email', options: { unique: true } },
       { name: 'name', options: { unique: false } },
       { name: 'tags', options: { multiEntry: true, unique: false } },
-      { name: 'age', options: { unique: false } }
+      { name: 'age', options: { unique: false } },
+      { name: 'name+age', fields: ["name", "age"] }
     ]
   })
 }

@@ -95,6 +95,25 @@ people.selectRange('name', { from: 'a', to: 'e' }, 'prev', (error, result) => {
 })
 ```
 
+Range options can be field keys, too. You can select by matching multiple fields at a time. Make sure having an index for the combination of the indexes though;
+
+```js
+const people = db.store('people', {
+    key: { autoIncrement: true, keyPath: 'id' },
+    indexes: [
+        { name: 'age+country', fields: ['age', 'country'] }
+    ]
+})
+```
+
+Now we can select people by age and country:
+
+```js
+people.selectRange('age+country', ['20', 'jamaika'], (error, result) => {
+    console.log(error, result)
+    result.continue()
+})
+```
 
 #### `.update`
 
