@@ -7,7 +7,7 @@ See `test.js` for examples.
 ## Install
 
 ```bash
-$ npm install azer/indexeddb
+$ npm install kaktus/indexeddb
 ```
 
 ## API
