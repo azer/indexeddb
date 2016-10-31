@@ -1,10 +1,10 @@
 'strict mode'
 
 const test = require("prova");
-const createDB = require("./");
+const createDB = require("./").createTestingDB;
 
 test('add + get', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(4)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
@@ -15,13 +15,13 @@ test('add + get', function (t) {
       t.equal(doc.name, 'azer')
       t.equal(doc.email, 'azer@roadbeats.com')
 
-      deleteDB(people.db.name)
+      people.db.delete()
     })
   })
 });
 
 test('update', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(5)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
@@ -35,14 +35,14 @@ test('update', function (t) {
         t.equal(doc.name, 'nova')
         t.equal(doc.email, 'nova@roadbeats.com')
 
-        deleteDB(people.db.name)
+        people.db.delete()
       })
     })
   })
 })
 
 test('delete', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(4)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
@@ -55,14 +55,14 @@ test('delete', function (t) {
         t.error(error)
         t.notOk(doc)
 
-        deleteDB(people.db.name)
+        people.db.delete()
       })
     })
   })
 });
 
 test('getByIndex', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(6)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
@@ -78,14 +78,14 @@ test('getByIndex', function (t) {
         t.equal(result.name, 'azer')
         t.equal(result.email, 'azer@roadbeats.com')
 
-        deleteDB(people.db.name)
+        people.db.delete()
       })
     })
   })
 });
 
 test('select range', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(8)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
@@ -100,6 +100,8 @@ test('select range', function (t) {
         people.select('name', { from: 'b', to: 'g' }, (error, result) => {
           t.error(error)
 
+          if (!result) people.db.delete()
+
           t.equal(result.value.id, 3)
           t.equal(result.value.name, 'foo')
           t.equal(result.value.email, 'foo@roadbeats.com')
@@ -112,7 +114,7 @@ test('select range', function (t) {
 });
 
 test('count', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(5)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
@@ -127,6 +129,8 @@ test('count', function (t) {
         people.count((error, count) => {
           t.error(error)
           t.equal(count, 3)
+
+          people.db.delete()
         })
       })
     })
@@ -134,7 +138,7 @@ test('count', function (t) {
 })
 
 test('searching by tag', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(10)
 
   var ctr = -1;
@@ -155,6 +159,8 @@ test('searching by tag', function (t) {
         people.select('tags', { only: 'software' }, (error, result) => {
           t.error(error)
 
+          if (!result) return people.db.delete()
+
           ctr++;
           t.equal(result.value.id, expected[ctr].id)
           t.equal(result.value.name, expected[ctr].name)
@@ -167,7 +173,7 @@ test('searching by tag', function (t) {
 })
 
 test('sorting by index', function (t) {
-  const people = store(randomDB())
+  const people = store()
   t.plan(17)
 
   var desc = [30, 29, 26]
@@ -186,6 +192,8 @@ test('sorting by index', function (t) {
 
         people.select('age', null, 'prev', function (error, result) {
           t.error(error)
+          if (!result) return people.db.delete()
+
           dctr++
           t.equal(result.value.age, desc[dctr])
           result.continue()
@@ -193,6 +201,8 @@ test('sorting by index', function (t) {
 
         people.select('age', null, 'next', function (error, result) {
           t.error(error)
+          if (!result) return people.db.delete()
+
           actr++
           t.equal(result.value.age, asc[actr])
           result.continue()
@@ -203,7 +213,7 @@ test('sorting by index', function (t) {
 })
 
 test('selecting range with multiple indexes', function (t) {
-  const people = store(randomDB())
+  const people = store()
 
   t.plan(11)
 
@@ -224,7 +234,7 @@ test('selecting range with multiple indexes', function (t) {
 
           people.select('name+age', ['azer', 29], (error, result) => {
             t.error(error)
-            if (!result) return
+            if (!result) return people.db.delete()
             t.equal(result.value.id, expected1[++ctr1])
             result.continue()
           })
@@ -233,7 +243,7 @@ test('selecting range with multiple indexes', function (t) {
           let ctr2 = -1
           people.select('name+age', { from: ['a', 20], to: ['ap' + '\uffff', 30] }, (error, result) => {
             t.error(error)
-            if (!result) return
+            if (!result) return people.db.delete()
             t.equal(result.value.id, expected2[++ctr2])
             result.continue()
           })
@@ -244,7 +254,7 @@ test('selecting range with multiple indexes', function (t) {
 })
 
 function store (db) {
-  return db.store('people', {
+  return createDB().store('people', {
     key: { autoIncrement: true, keyPath: 'id' },
     indexes: [
       { name: 'email', options: { unique: true } },
@@ -254,14 +264,4 @@ function store (db) {
       'age',
     ]
   })
-}
-
-function randomDB (name, version) {
-  return createDB(name || `testing-${Math.floor(Math.random()*99999)}`, {
-    version: version || 1
-  })
-}
-
-function deleteDB (name) {
-  indexedDB.deleteDatabase(name)
 }
