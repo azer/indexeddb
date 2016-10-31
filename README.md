@@ -1,6 +1,6 @@
 ## indexeddb
 
-Low-level Minimalistic wrapper for HTML5 IndexedDB API.
+Low-level Minimalistic wrapper for HTML5 IndexedDB API. It supports both callbacks and promises.
 
 See `test.js` for examples.
 
@@ -168,6 +168,24 @@ function upgrade () {
   people.createIndex('name', { unique: false })
 }
 ```
+
+#### Promises
+
+If callback is not passed, a `Promise` will be returned. Here is an example;
+
+```js
+const rows = [{ name: 'foo' }, { name: 'bar' }, { name: 'qux' }]
+
+Promise.all(rows.map(row => people.add(row))
+```
+
+Supported methods:
+
+* add
+* get
+* getByIndex
+* update
+* delete
 
 ## Examples
 
