@@ -7,7 +7,7 @@ See `test.js` for examples.
 ## Install
 
 ```bash
-$ npm install azer/indexeddb
+$ npm install kaktus/indexeddb
 ```
 
 ## API
@@ -45,7 +45,7 @@ people.add({ name: 'foo', email: 'bar@qux.com' }, error => console.log(error))
 Store method to iterate all documents in the store.
 
 ```js
-people.cursor((error, result) => console.log(error, result))
+people.all((error, result) => console.log(error, result))
 ```
 
 #### `.get`
@@ -74,7 +74,7 @@ Store method to get document(s) selecting by index, range and/or expected values
 
 Parameters: `store.select(indexName, rangeOptions, direction <optional>, callback)`
 
-Range options must have at least one of these properties:
+Range options can be expected values or have an object with following properties;
 * `from`
 * `to`
 * `only`
@@ -111,7 +111,7 @@ const people = db.store('people', {
 Now we can select people by age and country:
 
 ```js
-people.select('age+country', ['20', 'jamaika'], (error, result) => {
+people.select('age+country', [20, 'jamaika'], (error, result) => {
     console.log(error, result)
     result.continue()
 })
@@ -120,7 +120,7 @@ people.select('age+country', ['20', 'jamaika'], (error, result) => {
 `from` and `to` options provides us more flexibility here:
 
 ```js
-people.select('age+country', { from: ['20', 'jamaika'], to: [30, 'jamaika'] }, (error, result) => {
+people.select('age+country', { from: [20, 'jamaika'], to: [30, 'jamaika'] }, (error, result) => {
     console.log(error, result)
     result.continue()
 })
