@@ -21,10 +21,10 @@ const db = require('indexeddb')('mydb', {
 
 // Create your stores before opening the connection
 const people = db.store('people', {
-    key: { autoIncrement: true, keyPath: 'id' },
+    // you can choose custom key optionally by: "key: { options}"
     indexes: [
       { name: 'email', options: { unique: true } },
-      'name',
+      'age',
       'country'
     ]
 })

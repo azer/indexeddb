@@ -14,10 +14,12 @@ const data = [
 
 test('add + get', function (t) {
   const people = store()
-  t.plan(4)
+  t.plan(5)
 
   people.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
     t.error(error)
+
+    t.equal(id, 1)
 
     people.get(id, (error, doc) => {
       t.error(error)
@@ -27,7 +29,7 @@ test('add + get', function (t) {
       people.db.delete()
     })
   })
-});
+})
 
 test('update', function (t) {
   const people = store()
@@ -216,7 +218,6 @@ test('selecting range with multiple indexes', function (t) {
 
 function store (db) {
   return createDB().store('people', {
-    key: { autoIncrement: true, keyPath: 'id' },
     indexes: [
       { name: 'email', options: { unique: true } },
       { name: 'tags', options: { multiEntry: true, unique: false } },
@@ -228,7 +229,7 @@ function store (db) {
 }
 
 function createData (store, callback) {
-  Promise.all(data.map(store.add.bind(store)))
+  Promise.all(data.map(row => store.add(row)))
     .catch(callback)
     .then(() => callback())
 }
