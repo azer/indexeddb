@@ -1,6 +1,6 @@
 ## indexeddb
 
-Low-level Minimalistic wrapper for HTML5 IndexedDB API. It supports both [callbacks](#callbacks) and [promises](#promises).
+Well-tested, low-level wrapper around the IndexedDB API. Now it supports synchronization, too.
 
 See `test.js` for examples.
 
