@@ -190,7 +190,7 @@ test('sorting by index', function (t) {
 test('selecting range with multiple indexes', function (t) {
   const people = store()
 
-  t.plan(8)
+  t.plan(9)
 
   createData(people, error => {
     t.error(error)
@@ -213,6 +213,69 @@ test('selecting range with multiple indexes', function (t) {
       t.equal(result.value.id, expected2[++ctr2])
       result.continue()
     })
+  })
+})
+
+test('syncing three different indexeddb databases', function (t) {
+  t.plan(17)
+
+  const a = store()
+  const b = store()
+  const c = store()
+
+  a.db.sync(b.db)
+  a.db.sync(c.db)
+
+  a.add({ name: 'azer', email: 'azer@roadbeats.com' }, (error, id) => {
+    t.error(error)
+    t.equal(id, 1)
+
+    setTimeout(function () {
+      b.get(id, (error, doc) => {
+        t.error(error)
+        t.ok(doc)
+        t.equal(doc.name, 'azer')
+        t.equal(doc.email, 'azer@roadbeats.com')
+
+        c.update({ id: 1, name: 'nova', email: 'nova@roadbeats.com' }, error => {
+          t.error(error)
+
+          setTimeout(function () {
+            a.get(id, (error, doc) => {
+              t.error(error)
+              t.equal(doc.name, 'nova')
+              t.equal(doc.email, 'nova@roadbeats.com')
+
+              a.delete(id, function (error) {
+                t.error(error)
+
+                setTimeout(function () {
+                  a.get(id, (error, doc) => {
+                    t.error(error)
+                    t.notOk(doc)
+                  })
+
+                  b.get(id, (error, doc) => {
+                    t.error(error)
+                    t.notOk(doc)
+                  })
+
+                  c.get(id, (error, doc) => {
+                    t.error(error)
+                    t.notOk(doc)
+                  })
+
+                  a.db.delete()
+                  b.db.delete()
+                  c.db.delete()
+                }, 100)
+              })
+
+            })
+          }, 100)
+        })
+      })
+    }, 100)
   })
 })
 

@@ -12,7 +12,22 @@ $ npm install kaktus/indexeddb
 
 ## API
 
-Initializing:
+* [Stores](#stores)
+  * [.add](#add)
+  * [.all](#all)
+  * [.get](#get)
+  * [.getByIndex](#getByIndex)
+  * [.select](#select)
+  * [.update](#update)
+  * [.delete](#delete)
+  * [.count](#count)
+  * [.upgrade](#upgrade)
+  * [Promises](#promises)
+* [Synchronization](#synchronization)
+
+## Stores
+
+Define a store for each data type. Stores will have following methods;
 
 ```js
 const db = require('indexeddb')('mydb', {
@@ -186,6 +201,63 @@ Supported methods:
 * getByIndex
 * update
 * delete
+
+## Synchronization
+
+#### Local
+
+You can use the sync method to keep multiple local indexeddb database instances easily.
+
+```js
+const a = require('indexeddb')('local', {
+  version: 1
+})
+
+const b = require('indexeddb')('local', {
+  version: 1
+})
+
+const c = require('indexeddb')('local', {
+  version: 1
+})
+
+a.sync(b)
+a.sync(c)
+```
+
+That's it! Now all three local databases will be in sync.
+
+#### Custom (Remote)
+
+Any interface with `push` and `pull` methods can be a sync resource or target. `push` should distribute updates, `pull` retrieve and save. Here is an example;
+
+```js
+const local = require('indexeddb')('local', {
+  version: 1
+})
+
+const remote = {
+  push: push, pull: pull
+}
+
+local.sync(remote)
+
+function pull (action, options) {
+  // customize how you'll distribute changes here.
+  if (action == "add" && options.store == "articles") {
+    myapi.put("/articls", options.doc, function (error) {})
+  }
+}
+
+function push (save, done) {
+  // pull will be called with `save` and `done` functions.
+  // if you call done after each save, pull function will be called periodically.
+  // for implementations like websockets, don't call done. keep calling save.
+  myapi.get("/sync", function (response) {
+    save(response.updates, done)
+  })
+}
+```
 
 ## Examples
 
