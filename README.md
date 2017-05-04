@@ -225,7 +225,7 @@ a.sync(b)
 a.sync(c)
 ```
 
-That's it! Now all three local databases will be in sync.
+That's it! Now all three local databases will be in sync automatically.
 
 #### Custom (Remote)
 
