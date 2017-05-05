@@ -229,7 +229,7 @@ That's it! Now all three local databases will be in sync automatically.
 
 #### Custom (Remote)
 
-Any interface with `push` and `pull` methods can be a sync resource or target. `push` should distribute updates, `pull` retrieve and save. Here is an example;
+Any interface with `subscribe` and `pull` methods can be a sync resource or target. `push` should distribute updates, `pull` retrieve and save. Here is an example;
 
 ```js
 const local = require('indexeddb')('local', {
@@ -237,25 +237,42 @@ const local = require('indexeddb')('local', {
 })
 
 const remote = {
-  push: push, pull: pull
+  pull: pull,
+  subscribe: subscribe
 }
 
 local.sync(remote)
 
-function pull (action, options) {
-  // customize how you'll distribute changes here.
-  if (action == "add" && options.store == "articles") {
-    myapi.put("/articls", options.doc, function (error) {})
-  }
+function pull (updates) {
+  // customize how you'll send your changes to remote
+
+  updates.forEach(function (update) {
+    if (update.action == "add" && update.store == "articles") {
+      myapi.put("/articles", options.doc, function (error) {})
+    }
+  })
 }
 
-function push (save, done) {
-  // pull will be called with `save` and `done` functions.
-  // if you call done after each save, pull function will be called periodically.
-  // for implementations like websockets, don't call done. keep calling save.
+function subscribe (push) {
+  // it'll be called with a `push` function once in the beginning.
+  // pass an array of updates to push. see below for the content of updates array.
   myapi.get("/sync", function (response) {
-    save(response.updates, done)
+    push(response.updates)
   })
+}
+```
+
+Every update should be array of objects that tell about what's changed. For example;
+
+```
+{
+  action: 'add',
+  store: 'articles',
+  id: 1,
+  doc: {
+    title: 'hello world',
+    content: 'lorem ipsum ...'
+  }
 }
 ```
 

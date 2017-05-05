@@ -239,7 +239,6 @@ test('syncing three different indexeddb databases', function (t) {
 
         c.update({ id: 1, name: 'nova', email: 'nova@roadbeats.com' }, error => {
           t.error(error)
-
           setTimeout(function () {
             a.get(id, (error, doc) => {
               t.error(error)
