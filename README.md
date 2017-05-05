@@ -204,7 +204,7 @@ Supported methods:
 
 ## Synchronization
 
-#### Local
+### Local
 
 You can use the sync method to keep multiple local indexeddb database instances easily.
 
@@ -227,42 +227,10 @@ a.sync(c)
 
 That's it! Now all three local databases will be in sync automatically.
 
-#### Custom (Remote)
+### Remote
 
-Any interface with `subscribe` and `pull` methods can be a sync resource or target. `push` should distribute updates, `pull` retrieve and save. Here is an example;
-
-```js
-const local = require('indexeddb')('local', {
-  version: 1
-})
-
-const remote = {
-  pull: pull,
-  subscribe: subscribe
-}
-
-local.sync(remote)
-
-function pull (updates) {
-  // customize how you'll send your changes to remote
-
-  updates.forEach(function (update) {
-    if (update.action == "add" && update.store == "articles") {
-      myapi.put("/articles", options.doc, function (error) {})
-    }
-  })
-}
-
-function subscribe (push) {
-  // it'll be called with a `push` function once in the beginning.
-  // pass an array of updates to push. see below for the content of updates array.
-  myapi.get("/sync", function (response) {
-    push(response.updates)
-  })
-}
-```
-
-Every update should be array of objects that tell about what's changed. For example;
+You can sync your IndexedDB remotely. To accomplish this, you'll need to
+customize *Push* and *Pull* classes. Both of these classes pass eachother update objects. Here is an example update object;
 
 ```
 {
@@ -274,6 +242,73 @@ Every update should be array of objects that tell about what's changed. For exam
     content: 'lorem ipsum ...'
   }
 }
+```
+
+#### Customizing `Push`
+
+The Push class takes updates from a source and sends them to the target.
+If we are syncing an IndexedDB instance with a remote API, then we'll tweak
+this class to take updates from the API and simply pass it to the `add` method.
+
+```js
+const Push = require('indexeddb/lib/push')
+
+class APIPush extends Push {
+  constructor() {
+    super()
+
+    this.checkForUpdates()
+  }
+
+  checkForUpdates() {
+    myapi.get("/sync", resp => {
+      this.add(resp.updates)
+
+      setTimeout(() => this.checkForUpdates(), 1000) // keep checking for updates
+    })
+  }
+}
+```
+
+#### Customizing `Pull`
+
+The Pull class takes updates from a foreign database and copies it to the database it belongs to.
+In this example, we'll customize the `copy` method to send the updates we get to the server.
+
+```js
+const Pull = require('indexeddb/lib/pull')
+
+class APIPull extends Pull {
+  constructor() {
+    super()
+    this.intervalMS = 1000 // Default is 50, too low for APIs.
+  }
+
+  copy(updates) {
+    updates.forEach(function (update) {
+      if (update.action == "add" && update.store == "articles") {
+        myapi.put("/articles", options.doc, function (error) {})
+      }
+    })
+  }
+}
+```
+
+#### Custom Synchronization
+
+After we defined the custom Push & Pull functions, we are ready to hook them.
+Simply create an object of these two and pass it to the sync method of the database
+that you want to sync with. Check the example below;
+
+```js
+const local = require('indexeddb')('local', {
+  version: 1
+})
+
+local.sync({
+  pull: new APIPush,
+  push: new APIPull
+})
 ```
 
 ## Examples
