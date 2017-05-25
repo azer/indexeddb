@@ -24,6 +24,8 @@ $ npm install kaktus/indexeddb
   * [.upgrade](#upgrade)
   * [Promises](#promises)
 * [Synchronization](#synchronization)
+  * [Local](#local)
+  * [Remote](#remote)
 
 ## Stores
 
