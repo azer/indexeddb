@@ -234,7 +234,7 @@ That's it! Now all three local databases will be in sync automatically.
 You can sync your IndexedDB remotely. To accomplish this, you'll need to
 customize *Push* and *Pull* classes. Both of these classes pass eachother update objects. Here is an example update object;
 
-```
+```js
 {
   action: 'add',
   store: 'articles',
