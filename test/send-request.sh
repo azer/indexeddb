@@ -1,0 +1,1 @@
+curl -XPOST -H "Content-type: application/json" -d '[{ "action": "add", "store": "people", "id": "azer@roadbeats.com", "doc": {"name":"azer","email":"azer@roadbeats.com","age":29,"tags":["software","travel"]} }]' http://localhost:3000

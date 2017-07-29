@@ -12,8 +12,8 @@ function createDB (name, options) {
   return new DB(name, options)
 }
 
-function createTestingDB () {
-  return new DB(`testing-${Math.floor(Math.random()*9999999)}`, {
+function createTestingDB (options) {
+  return new DB(`testing-${Math.floor(Math.random()*9999999)}`, options || {
     version: 1
   })
 }
