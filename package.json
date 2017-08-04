@@ -14,5 +14,8 @@
   "license": "BSD",
   "devDependencies": {
     "prova": "github:azer/prova"
+  },
+  "dependencies": {
+    "pubsub": "github:azer/pubsub"
   }
 }

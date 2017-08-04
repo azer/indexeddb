@@ -18,7 +18,11 @@ class APIPull extends Pull {
     this.intervalMS = 1000
   }
 
-  copy(updates) {
+  receive(updates) {
+    if (!Array.isArray(updates)) {
+      updates = [updates]
+    }
+
     api.post('/sync-api', updates, (error, resp) => {
       if (error) {
         return this.onError(error)
@@ -55,12 +59,7 @@ class APIPush extends Push {
   checkForUpdates() {
     api.get(`/sync-api?ts=${this.parent.lastSyncedAt}`, (error, updates) => {
       if (error) return this.onError(error)
-
-      var i = -1
-      var len = updates.length
-      while (++i < len) {
-        this.add(updates[i])
-      }
+      this.publish(updates)
     })
   }
 

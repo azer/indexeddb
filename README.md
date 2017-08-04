@@ -1,13 +1,13 @@
 ## indexeddb
 
-Well-tested, low-level wrapper around the IndexedDB API. Now it supports synchronization, too.
+Well-tested, low-level wrapper around the IndexedDB API. [It can sync, too](#synchronization).
 
 See `test.js` for examples.
 
 ## Install
 
 ```bash
-$ npm install kaktus/indexeddb
+$ yarn add azer/indexeddb # or npm i azer/indexeddb
 ```
 
 ## API
@@ -22,6 +22,7 @@ $ npm install kaktus/indexeddb
   * [.delete](#delete)
   * [.count](#count)
   * [.upgrade](#upgrade)
+  * [.onChange](#onChange)
   * [Promises](#promises)
 * [Synchronization](#synchronization)
   * [Local](#local)
@@ -38,7 +39,7 @@ const db = require('indexeddb')('mydb', {
 
 // Create your stores before opening the connection
 const people = db.store('people', {
-    // you can choose custom key optionally by: "key: { options}"
+    key: 'email', // you can choose custom key optionally by: "key: { autoIncrement: true, keyPath: 'id' }"
     indexes: [
       { name: 'email', options: { unique: true } },
       'age',
@@ -62,7 +63,14 @@ people.add({ name: 'foo', email: 'bar@qux.com' }, error => console.log(error))
 Store method to iterate all documents in the store.
 
 ```js
-people.all((error, result) => console.log(error, result))
+people.all((err, row) => {
+  if (err) return console.error(err)
+
+  if (row) {
+    console.log(row.value)
+    row.continue()
+  }
+})
 ```
 
 #### `.get`
@@ -97,9 +105,9 @@ Range options can be expected values or have an object with following properties
 * `only`
 
 ```js
-people.select('name', { from: 'a', to: 'e' }, (error, result) => {
+people.select('name', { from: 'a', to: 'e' }, (error, row) => {
     console.log(error, result)
-    result.continue()
+    row.continue()
 })
 ```
 
@@ -108,9 +116,18 @@ You can optionally choose direction parameter for getting results sorted. Direct
 * `next` (ascending)
 
 ```js
-people.select('name', { from: 'a', to: 'e' }, 'prev', (error, result) => {
+people.select('name', { from: 'a', to: 'e' }, 'prev', (error, row) => {
     console.log(error, result)
-    result.continue()
+    row.continue()
+})
+```
+
+Direction parameters can be useful when you need to iterate by a numeric field. For example, we can iterate the people store by `age` in descending order:
+
+```js
+people.select('age', null, 'prev', (error, row) => {
+    console.log(error, result)
+    row.continue()
 })
 ```
 
@@ -128,9 +145,9 @@ const people = db.store('people', {
 Now we can select people by age and country:
 
 ```js
-people.select('age+country', [20, 'jamaika'], (error, result) => {
+people.select('age+country', [20, 'jamaika'], (error, row) => {
     console.log(error, result)
-    result.continue()
+    row.continue()
 })
 ```
 
@@ -185,6 +202,22 @@ function upgrade () {
   people.createIndex('name', { unique: false })
 }
 ```
+
+#### `.onChange`
+
+This is an optimized pubsub object where you can subscribe for changes. Here is an example;
+
+```js
+people.onChange(() => console.log('people store has changed'))
+```
+
+You can subscribe for once, too;
+
+```js
+people.onChange.once(() => console.log('he-yo!'))
+```
+
+There is unsubscribe methods, as well. See full API reference for this particular object at [pubsub](https://github.com/azer/pubsub) repository.
 
 #### Promises
 
@@ -248,24 +281,22 @@ customize *Push* and *Pull* classes. Both of these classes pass eachother update
 
 #### Customizing `Push`
 
-The Push class takes updates from a source and sends them to the target.
+The Push class takes updates from itself and sends them to the target.
 If we are syncing an IndexedDB instance with a remote API, then we'll tweak
-this class to take updates from the API and simply pass it to the `add` method.
+this class to take updates from the API and simply pass it to the `publish` method.
 
 ```js
 const Push = require('indexeddb/lib/push')
 
-class APIPush extends Push {
+class PushFromAPI extends Push {
   constructor() {
     super()
-
     this.checkForUpdates()
   }
 
   checkForUpdates() {
     myapi.get("/sync", resp => {
-      this.add(resp.updates)
-
+      this.publish(resp.updates)
       setTimeout(() => this.checkForUpdates(), 1000) // keep checking for updates
     })
   }
@@ -274,19 +305,16 @@ class APIPush extends Push {
 
 #### Customizing `Pull`
 
-The Pull class takes updates from a foreign database and copies it to the database it belongs to.
-In this example, we'll customize the `copy` method to send the updates we get to the server.
+The Pull class takes updates from a foreign source and copies to itself.
+In this example, we'll customize the `receive` method to post updates to our API server;
 
 ```js
 const Pull = require('indexeddb/lib/pull')
 
-class APIPull extends Pull {
-  constructor() {
-    super()
-    this.intervalMS = 1000 // Default is 50, too low for APIs.
-  }
+class PullIntoAPI extends Pull {
+  receive(updates) {
+    if (!Array.isArray(updates)) updates = [updates] // We may get one update or an array of updates, depending on what we sync with
 
-  copy(updates) {
     updates.forEach(function (update) {
       if (update.action == "add" && update.store == "articles") {
         myapi.put("/articles", options.doc, function (error) {})
@@ -315,4 +343,4 @@ local.sync({
 
 ## Examples
 
-See `test.js`
+See `test` folder.
