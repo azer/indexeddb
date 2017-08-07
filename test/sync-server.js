@@ -48,19 +48,19 @@ function sync (updates) {
 
     if (u.action === 'add') {
       u.doc.createdAt = Date.now()
-      stores[u.store][u.id] = u.doc
+      stores[u.store][u.documentId] = u.doc
       console.log('added ', JSON.stringify(u.doc))
     }
 
     if (u.action === 'update') {
       u.doc.updatedAt = Date.now()
-      stores[u.store][u.id] = u.doc
+      stores[u.store][u.documentId] = u.doc
       console.log('updated ', JSON.stringify(u.doc))
     }
 
     if (u.action === 'delete') {
-      stores[u.store][u.id] = { deleted: true, deletedAt: Date.now() }
-      console.log('deleted ', u.id)
+      stores[u.store][u.documentId] = { deleted: true, deletedAt: Date.now() }
+      console.log('deleted ', u.documentId)
     }
   })
 }
@@ -79,7 +79,7 @@ function filter (options) {
         updates.push({
           action: 'add',
           store: name,
-          id: id,
+          documentId: id,
           doc: stores[name][id]
         })
       }
@@ -88,7 +88,7 @@ function filter (options) {
         updates.push({
           action: 'update',
           store: name,
-          id: id,
+          documentId: id,
           doc: stores[name][id]
         })
       }
@@ -97,7 +97,7 @@ function filter (options) {
         updates.push({
           action: 'delete',
           store: name,
-          id: id
+          documentId: id
         })
       }
     }

@@ -27,7 +27,7 @@ test('should send update objects to remote server', t => {
       t.equal(result[1].action, 'add')
       t.equal(result[1].doc.email, 'nova@roadbeats.com')
       t.equal(result[2].action, 'delete')
-      t.equal(result[2].id, "3")
+      t.equal(result[2].documentId, "3")
       t.equal(result[3].doc.email, 'pablo@roadbeats.com')
       t.equal(result[3].action, 'add')
     })
