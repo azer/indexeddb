@@ -1,46 +1,43 @@
 const test = require("prova")
-const samples = require("./samples")
+const samples = require("./fixtures/samples")
 
-test('select range', function (t) {
+test("select range", function(t) {
   const people = samples.store()
   t.plan(6)
 
   samples.createData(people, error => {
     t.error(error)
 
-    people.select('name', { from: 'b', to: 'g' }, (error, result) => {
+    people.select("name", { from: "b", to: "g" }, (error, result) => {
       t.error(error)
 
       if (!result) people.db.delete()
 
       t.equal(result.value.id, 6)
-      t.equal(result.value.name, 'foo')
-      t.equal(result.value.email, 'foo@roadbeats.com')
+      t.equal(result.value.name, "foo")
+      t.equal(result.value.email, "foo@roadbeats.com")
 
       result.continue()
     })
   })
-});
+})
 
-test('searching by tag', function (t) {
+test("searching by tag", function(t) {
   const people = samples.store()
   t.plan(8)
 
-  var ctr = -1;
-  var expected = [
-    { id: 1, name: 'azer' },
-    { id: 6, name: 'foo' }
-  ];
+  var ctr = -1
+  var expected = [{ id: 1, name: "azer" }, { id: 6, name: "foo" }]
 
   samples.createData(people, error => {
     t.error(error)
 
-    people.select('tags', { only: 'software' }, (error, result) => {
+    people.select("tags", { only: "software" }, (error, result) => {
       t.error(error)
 
       if (!result) return people.db.delete()
 
-      ctr++;
+      ctr++
       t.equal(result.value.id, expected[ctr].id)
       t.equal(result.value.name, expected[ctr].name)
 
@@ -49,7 +46,7 @@ test('searching by tag', function (t) {
   })
 })
 
-test('sorting by index', function (t) {
+test("sorting by index", function(t) {
   const people = samples.store()
   t.plan(27)
 
@@ -61,7 +58,7 @@ test('sorting by index', function (t) {
   samples.createData(people, error => {
     t.error(error)
 
-    people.select('age', null, 'prev', function (error, result) {
+    people.select("age", null, "prev", function(error, result) {
       t.error(error)
       if (!result) return people.db.delete()
 
@@ -70,7 +67,7 @@ test('sorting by index', function (t) {
       result.continue()
     })
 
-    people.select('age', null, 'next', function (error, result) {
+    people.select("age", null, "next", function(error, result) {
       t.error(error)
       if (!result) return people.db.delete()
 
@@ -81,7 +78,7 @@ test('sorting by index', function (t) {
   })
 })
 
-test('selecting range with multiple indexes', function (t) {
+test("selecting range with multiple indexes", function(t) {
   const people = samples.store()
 
   t.plan(9)
@@ -92,7 +89,7 @@ test('selecting range with multiple indexes', function (t) {
     const expected1 = [1]
     let ctr1 = -1
 
-    people.select('name+age', ['azer', 29], (error, result) => {
+    people.select("name+age", ["azer", 29], (error, result) => {
       t.error(error)
       if (!result) return people.db.delete()
       t.equal(result.value.id, expected1[++ctr1])
@@ -101,11 +98,15 @@ test('selecting range with multiple indexes', function (t) {
 
     const expected2 = [3, 5]
     let ctr2 = -1
-    people.select('name+age', { from: ['a', 20], to: ['ap' + '\uffff', 30] }, (error, result) => {
-      t.error(error)
-      if (!result) return people.db.delete()
-      t.equal(result.value.id, expected2[++ctr2])
-      result.continue()
-    })
+    people.select(
+      "name+age",
+      { from: ["a", 20], to: ["ap" + "\uffff", 30] },
+      (error, result) => {
+        t.error(error)
+        if (!result) return people.db.delete()
+        t.equal(result.value.id, expected2[++ctr2])
+        result.continue()
+      }
+    )
   })
 })
