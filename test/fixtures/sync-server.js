@@ -13,6 +13,8 @@ server.listen(port, hostname, () => {
 function onRequest(req, resp) {
   const query = url.parse(req.url, true).query
 
+  console.log("request", req.url)
+
   if (req.method !== "POST") {
     return resp.end(JSON.stringify(filter(query)))
   }

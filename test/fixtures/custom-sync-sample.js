@@ -1,6 +1,6 @@
-const createDB = require("../").createTestingDB
-const Push = require("../lib/push")
-const Pull = require("../lib/pull")
+const createDB = require("../../").createTestingDB
+const Push = require("../../lib/push")
+const Pull = require("../../lib/pull")
 const api = require("./api")
 
 class APIHook {
@@ -23,7 +23,7 @@ class APIPull extends Pull {
       updates = [updates]
     }
 
-    api.post('/sync-api', updates, (error, resp) => {
+    api.post("/sync-api", updates, (error, resp) => {
       if (error) {
         return this.onError(error)
       }
@@ -33,7 +33,7 @@ class APIPull extends Pull {
   }
 
   onError(err) {
-    console.error('screwed up', err)
+    console.error("screwed up", err)
   }
 }
 
@@ -64,7 +64,7 @@ class APIPush extends Push {
   }
 
   onError(err) {
-    console.error('screwed up > > >', err)
+    console.error("screwed up > > >", err)
   }
 }
 
