@@ -1,6 +1,6 @@
-const createDB = require("../../").createTestingDB
-const Push = require("../../lib/push")
-const Pull = require("../../lib/pull")
+const createDB = require("../../lib/").createTestingDB
+const Push = require("../../lib/src/push").default
+const Pull = require("../../lib/src/pull").default
 const api = require("./api")
 
 class APIHook {
@@ -46,6 +46,15 @@ class APIPush extends Push {
     this.schedule()
   }
 
+  onPublish(errors) {
+    if (errors) {
+      console.error("Errors occurred on publish", errors)
+      return
+    }
+
+    console.log("Received updates from API")
+  }
+
   schedule() {
     if (this.scheduledAt > 0) {
       // already scheduled
@@ -59,7 +68,7 @@ class APIPush extends Push {
   checkForUpdates() {
     api.get(`/sync-api?ts=${this.parent.lastSyncedAt}`, (error, updates) => {
       if (error) return this.onError(error)
-      this.publish(updates)
+      this.publish(updates, this.onPublish)
     })
   }
 

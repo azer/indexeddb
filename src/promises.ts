@@ -1,20 +1,4 @@
-/**
- * Minimize IndexedDB request API to callbacks and promises. Example:
- *
- *  function get () {
- *    return createPromise(arguments, (callback, resolve, reject) => {
- *      returnResult(null, db.get(123), callback, resolve, reject)
- *    })
- *  }
- *
- */
-
-module.exports = {
-  returnResult,
-  createPromise
-}
-
-function returnResult(err, request, callback, resolve, reject, push) {
+export function returnResult(err, request, callback, resolve?, reject?, push?) {
   if (err) {
     ;(callback || reject)(err)
   }
@@ -38,7 +22,7 @@ function returnResult(err, request, callback, resolve, reject, push) {
   }
 }
 
-function createPromise(args, fn) {
+export function createPromise(args, fn) {
   const cb = args[args.length - 1]
   if (typeof cb === "function") return fn(cb)
 

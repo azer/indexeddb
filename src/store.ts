@@ -1,16 +1,24 @@
-"use strict"
-
-const pubsub = require("pubsub")
-const { returnResult, createPromise } = require("./promises")
+import * as pubsub from "pubsub"
+import { returnResult, createPromise } from "./promises"
+import * as types from "./types"
+import { createTestingDB } from "../"
 
 const READ_WRITE = "readwrite"
 const READ_ONLY = "readonly"
 const DEFAULT_KEY = { keyPath: "id", autoIncrement: true }
 
-let createTestingDB
+export default class Store implements types.IStore {
+  public name: string
+  public db: types.IDB
+  public idbStore: IDBObjectStore
+  public isSimpleStore: boolean
+  public key: string | types.IKeyDefinition
+  public indexes: types.IIndexDefinition[]
+  public isTestStore: boolean
+  public onChange: any
+  public customUpgradeFn: (store: types.IStore) => void | undefined
 
-class Store {
-  constructor(name, options) {
+  constructor(name: string, options: types.IStoreDefinition) {
     this.name = name
     this.idbStore = null
 
@@ -19,14 +27,14 @@ class Store {
     } else {
       this.key = options.key || DEFAULT_KEY
       this.indexes = options.indexes || []
-      this._upgrade = options.upgrade
+      this.customUpgradeFn = options.upgrade
       this.isTestStore = !!options.testing
     }
 
     this.onChange = pubsub()
   }
 
-  create(db, event) {
+  create(db: IDBDatabase, event: Event) {
     if (db.objectStoreNames.contains(this.name)) {
       return this.upgrade(event)
     }
@@ -41,7 +49,7 @@ class Store {
     this.indexes.forEach(index => this.createIndex(index))
   }
 
-  createIndex(index) {
+  createIndex(index: types.IIndexDefinition) {
     if (typeof index === "string") {
       index = { name: index }
     }
@@ -50,32 +58,36 @@ class Store {
       index.path || index.paths || index.field || index.fields || index.name
     const options = index.options || { unique: false }
 
-    this.idbStore.createIndex(index.name, field, index.options)
+    this.idbStore.createIndex(index.name, field, options)
   }
 
-  upgrade(event) {
-    if (!this._upgrade) return
+  upgrade(event: Event) {
+    if (!this.customUpgradeFn) return
 
-    this.idbStore = event.currentTarget.transaction.objectStore(this.name)
-    this._upgrade(this)
+    const target = event.currentTarget as any
+
+    this.idbStore = (target.transaction as IDBTransaction).objectStore(
+      this.name
+    )
+    this.customUpgradeFn(this)
   }
 
-  mode(type, callback) {
+  mode(type: string, callback: types.ICallback): IDBTransaction {
     return this.db.transaction([this.name], type, (error, tx) => {
       if (error) return callback(error)
       callback(undefined, tx.objectStore(this.name))
     })
   }
 
-  readWrite(callback) {
+  readWrite(callback: types.ICallback): IDBTransaction {
     return this.mode(READ_WRITE, callback)
   }
 
-  readOnly(callback) {
+  readOnly(callback: types.ICallback): IDBTransaction {
     return this.mode(READ_ONLY, callback)
   }
 
-  all() {
+  all(): Promise<object> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(error, ro.openCursor(), callback, resolve, reject)
@@ -83,27 +95,23 @@ class Store {
     })
   }
 
-  add(doc) {
+  add(doc: object): Promise<object> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this._add(doc, callback, resolve, reject, id => {
-        this.db.push.publish({
-          action: "add",
-          store: this.name,
-          documentId: id,
-          doc: doc
-        })
+        this.db.push.publish(
+          {
+            action: "add",
+            store: this.name,
+            documentId: id,
+            doc
+          },
+          this.onPublish
+        )
       })
     })
   }
 
-  _add(doc, callback, resolve, reject, push) {
-    this.readWrite((error, rw) => {
-      returnResult(error, rw.add(doc), callback, resolve, reject, push)
-      this.onChange.publish()
-    })
-  }
-
-  get(key) {
+  get(key: any): Promise<object> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(error, ro.get(key), callback, resolve, reject)
@@ -111,7 +119,7 @@ class Store {
     })
   }
 
-  getByIndex(indexName, indexValue) {
+  getByIndex(indexName: any, indexValue: any) {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(
@@ -125,13 +133,18 @@ class Store {
     })
   }
 
-  cursor(range, direction, callback) {
+  cursor(range: types.IRange, direction: string, callback: types.ICallback) {
     this.readOnly((error, ro) => {
       returnResult(error, ro.openCursor(this.range(range), direction), callback)
     })
   }
 
-  indexCursor(name, range, direction, callback) {
+  indexCursor(
+    name: string,
+    range: types.IRange,
+    direction: string,
+    callback: types.ICallback
+  ) {
     this.readOnly((error, ro) => {
       returnResult(
         error,
@@ -141,12 +154,25 @@ class Store {
     })
   }
 
-  select(indexName, rangeOptions, direction, callback) {
-    let range = rangeOptions ? this.range(rangeOptions) : null
+  onPublish(errors: Error[]) {
+    if (errors) {
+      console.error("Error(s) happened on publishing changes", errors)
+    }
+  }
 
-    if (arguments.length === 3) {
-      callback = direction
+  select(
+    indexName: string,
+    rangeOptions: null | types.IRange,
+    directionOrCallback: string | types.ICallback,
+    optionalCallback?: types.ICallback
+  ) {
+    let range = rangeOptions ? this.range(rangeOptions) : null
+    let direction = directionOrCallback
+    let callback = optionalCallback
+
+    if (arguments.length === 3 && typeof directionOrCallback === "function") {
       direction = undefined
+      callback = directionOrCallback
     }
 
     this.readOnly((error, ro) => {
@@ -158,46 +184,38 @@ class Store {
     })
   }
 
-  update(doc) {
+  update(doc: object) {
     return createPromise(arguments, (callback, resolve, reject) => {
       this._update(doc, callback, resolve, reject, id => {
-        this.db.push.publish({
-          action: "update",
-          store: this.name,
-          documentId: id,
-          doc: doc
-        })
+        this.db.push.publish(
+          {
+            action: "update",
+            store: this.name,
+            documentId: id,
+            doc: doc
+          },
+          this.onPublish
+        )
       })
     })
   }
 
-  _update(doc, callback, resolve, reject, push) {
-    this.readWrite((error, rw) => {
-      returnResult(error, rw.put(doc), callback, resolve, reject, push)
-      this.onChange.publish()
-    })
-  }
-
-  delete(id) {
+  delete(id: any) {
     return createPromise(arguments, (callback, resolve, reject) => {
       this._delete(id, callback, resolve, reject, () => {
-        this.db.push.publish({
-          action: "delete",
-          store: this.name,
-          documentId: id
-        })
+        this.db.push.publish(
+          {
+            action: "delete",
+            store: this.name,
+            documentId: id
+          },
+          this.onPublish
+        )
       })
     })
   }
 
-  _delete(id, callback, resolve, reject, push) {
-    this.readWrite((error, rw) => {
-      returnResult(error, rw.delete(id), callback, resolve, reject, push)
-      this.onChange.publish()
-    })
-  }
-
-  count() {
+  count(): Promise<number> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(error, ro.count(), callback, resolve, reject)
@@ -205,7 +223,7 @@ class Store {
     })
   }
 
-  range(options) {
+  range(options: types.IRange): types.IRange | IDBKeyRange {
     if (options.from !== undefined && options.to !== undefined) {
       return IDBKeyRange.bound(options.from, options.to)
     }
@@ -225,8 +243,7 @@ class Store {
     return options
   }
 
-  testing(optionalDB) {
-    createTestingDB || (createTestingDB = require("../").createTestingDB)
+  testing(optionalDB?: types.IDB): types.IStore {
     const db = optionalDB || createTestingDB()
     return db.store(
       this.name,
@@ -235,12 +252,48 @@ class Store {
         : {
             key: this.key,
             indexes: this.indexes,
-            upgrade: this._upgrade,
-            testing: true,
-            db
+            upgrade: this.customUpgradeFn,
+            testing: true
           }
     )
   }
-}
 
-module.exports = Store
+  _add(
+    doc: object,
+    callback?: types.ICallback,
+    resolve?: types.IResolveFn,
+    reject?: types.IRejectFn,
+    push?: types.IPushFn
+  ) {
+    this.readWrite((error, rw) => {
+      returnResult(error, rw.add(doc), callback, resolve, reject, push)
+      this.onChange.publish()
+    })
+  }
+
+  _delete(
+    id: any,
+    callback: types.ICallback,
+    resolve: types.IResolveFn,
+    reject: types.IRejectFn,
+    push: types.IPushFn
+  ) {
+    this.readWrite((error, rw) => {
+      returnResult(error, rw.delete(id), callback, resolve, reject, push)
+      this.onChange.publish()
+    })
+  }
+
+  _update(
+    doc: object,
+    callback?: types.ICallback,
+    resolve?: types.IResolveFn,
+    reject?: types.IRejectFn,
+    push?: types.IPushFn
+  ) {
+    this.readWrite((error, rw) => {
+      returnResult(error, rw.put(doc), callback, resolve, reject, push)
+      this.onChange.publish()
+    })
+  }
+}

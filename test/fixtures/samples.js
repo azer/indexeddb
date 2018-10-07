@@ -1,4 +1,4 @@
-const createDB = require("../../").createTestingDB
+const createDB = require("../../lib/").createTestingDB
 
 const data = [
   {

@@ -2,7 +2,7 @@
   "name": "indexeddb",
   "version": "0.0.0",
   "description": "Minimalistic wrapper for HTML5 IndexedDB API",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "test": "node test -b"
   },
@@ -13,7 +13,8 @@
   "author": "azer",
   "license": "BSD",
   "devDependencies": {
-    "prova": "github:azer/prova"
+    "prova": "github:azer/prova",
+    "typescript": "^3.1.1"
   },
   "dependencies": {
     "pubsub": "github:azer/pubsub"

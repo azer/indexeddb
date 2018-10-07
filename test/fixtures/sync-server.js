@@ -40,6 +40,10 @@ function onRequest(req, resp) {
   })
 
   resp.end('{ "done": true, "time": ' + Date.now() + " }")
+
+  if (stores.people) {
+    delete stores.people[4]
+  }
 }
 
 function sync(updates) {

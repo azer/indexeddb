@@ -344,3 +344,13 @@ local.sync({
 ## Examples
 
 See `test` folder.
+
+## Tests
+
+I use [prova](https://github.com/azer/prova) for testing. After running the following commands, open up `localhost:7559` see the results:
+
+* Simple create/update tests: `node test/crud.js -b`
+* Select queries: `node test/select.js -b`
+* Sync:
+  * Start sample sync backend: `node test/fixtures/sync-server.js`
+  * Run frontend tests: `node test/custom-sync.js -b -y "/sync-api=http://localhost:3000"`
