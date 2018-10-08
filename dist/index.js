@@ -7,6 +7,8 @@ const pull_1 = require("./pull");
 exports.Pull = pull_1.default;
 const indexeddb_pull_1 = require("./indexeddb-pull");
 exports.IndexedDBPull = indexeddb_pull_1.default;
+const types = require("./types");
+exports.types = types;
 function createDB(name, options) {
     return new db_1.default(name, options);
 }
