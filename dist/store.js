@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const pubsub = require("pubsub");
 const promises_1 = require("./promises");
-const __1 = require("../");
+const index_1 = require("./index");
 const READ_WRITE = "readwrite";
 const READ_ONLY = "readonly";
 const DEFAULT_KEY = { keyPath: "id", autoIncrement: true };
@@ -167,7 +167,7 @@ class Store {
         return options;
     }
     testing(optionalDB) {
-        const db = optionalDB || __1.createTestingDB();
+        const db = optionalDB || index_1.createTestingDB();
         return db.store(this.name, this.isSimpleStore
             ? null
             : {

@@ -1,8 +1,9 @@
-import DB from "./src/db"
-import Store from "./src/store"
-import Push from "./src/push"
-import Pull from "./src/pull"
-import * as types from "./src/types"
+import DB from "./db"
+import Store from "./store"
+import Push from "./push"
+import Pull from "./pull"
+import IndexedDBPull from "./indexeddb-pull"
+import * as types from "./types"
 
 export default function createDB(name: string, options: types.IDBOptions) {
   return new DB(name, options)
@@ -17,4 +18,4 @@ export function createTestingDB(options?: types.IDBOptions) {
   )
 }
 
-export { Push, Pull }
+export { Push, Pull, IndexedDBPull }

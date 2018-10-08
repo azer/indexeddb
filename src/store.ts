@@ -1,7 +1,7 @@
 import * as pubsub from "pubsub"
 import { returnResult, createPromise } from "./promises"
 import * as types from "./types"
-import { createTestingDB } from "../"
+import { createTestingDB } from "./index"
 
 const READ_WRITE = "readwrite"
 const READ_ONLY = "readonly"

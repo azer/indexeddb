@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const db_1 = require("./src/db");
-const push_1 = require("./src/push");
+const db_1 = require("./db");
+const push_1 = require("./push");
 exports.Push = push_1.default;
-const pull_1 = require("./src/pull");
+const pull_1 = require("./pull");
 exports.Pull = pull_1.default;
+const indexeddb_pull_1 = require("./indexeddb-pull");
+exports.IndexedDBPull = indexeddb_pull_1.default;
 function createDB(name, options) {
     return new db_1.default(name, options);
 }

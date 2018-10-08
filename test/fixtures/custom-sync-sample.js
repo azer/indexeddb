@@ -1,6 +1,6 @@
 const createDB = require("../../dist/").createTestingDB
-const Push = require("../../dist/src/push").default
-const Pull = require("../../dist/src/pull").default
+const Push = require("../../dist/").Push
+const Pull = require("../../dist/").Pull
 const api = require("./api")
 
 class APIHook {
