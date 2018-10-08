@@ -2,7 +2,7 @@
   "name": "indexeddb",
   "version": "0.0.0",
   "description": "Minimalistic wrapper for HTML5 IndexedDB API",
-  "main": "./lib/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "test": "node test -b"
   },

@@ -10,4 +10,4 @@ watch: compile
 
 clean:
 	@echo "  >  Cleaning..."
-	@rm -rf ./lib
+	@rm -rf ./dist

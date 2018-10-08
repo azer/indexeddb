@@ -3,7 +3,7 @@
     "target": "es2015",
     "module": "commonjs",
     "declaration": true,
-    "outDir": "./lib",
+    "outDir": "./dist",
     "strict": false
   }
 }
