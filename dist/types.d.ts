@@ -48,7 +48,7 @@ export interface IStrictIndexDefinition {
     options?: object;
 }
 export interface IStoreDefinition {
-    key: string | IKeyDefinition;
+    key?: string | IKeyDefinition;
     indexes: IIndexDefinition[];
     upgrade?: (store: IStore) => void;
     testing?: boolean;
@@ -63,21 +63,21 @@ export interface IStore {
     isTestStore: boolean;
     onChange: any;
     customUpgradeFn: (store: IStore) => void | undefined;
+    add(doc: object, optionalCallback?: ICallback): Promise<object>;
+    all(optionalCallback?: ICallback): Promise<object>;
     create(db: IDBDatabase, event: Event): any;
     createIndex(index: IIndexDefinition): any;
-    upgrade(event: Event): any;
+    count(optionalCallback?: ICallback): Promise<number>;
+    cursor(range: IRange, direction: string, callback: ICallback): any;
+    delete(id: any, optionalCallback?: ICallback): Promise<object>;
+    get(key: any, optionalCallback?: ICallback): Promise<object>;
+    getByIndex(indexName: any, indexValue: any, optionalCallback?: ICallback): any;
     mode(type: string, callback: ICallback): IDBTransaction;
+    range(options: IRange): IRange | IDBKeyRange;
     readWrite(callback: ICallback): IDBTransaction;
     readOnly(callback: ICallback): IDBTransaction;
-    all(): Promise<object>;
-    add(doc: object, callback?: ICallback): Promise<object>;
-    delete(id: any, callback?: ICallback): Promise<object>;
-    get(key: any): Promise<object>;
-    cursor(range: IRange, direction: string, callback: ICallback): any;
-    getByIndex(indexName: any, indexValue: any): any;
-    update(doc: object): any;
-    count(): Promise<number>;
-    range(options: IRange): IRange | IDBKeyRange;
+    update(doc: object, optionalCallback?: ICallback): any;
+    upgrade(event: Event): any;
     indexCursor(name: string, range: IRange, direction: string, callback: ICallback): any;
     select(indexName: string, rangeOptions: null | IRange, directionOrCallback: string | ICallback, optionalCallback?: ICallback): any;
     _add(doc: object, callback?: ICallback, resolve?: IResolveFn, reject?: IRejectFn, push?: IPushFn): any;

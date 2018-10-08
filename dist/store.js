@@ -61,14 +61,14 @@ class Store {
     readOnly(callback) {
         return this.mode(READ_ONLY, callback);
     }
-    all() {
+    all(optionalCallback) {
         return promises_1.createPromise(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
                 promises_1.returnResult(error, ro.openCursor(), callback, resolve, reject);
             });
         });
     }
-    add(doc) {
+    add(doc, optionalCallback) {
         return promises_1.createPromise(arguments, (callback, resolve, reject) => {
             this._add(doc, callback, resolve, reject, id => {
                 this.db.push.publish({
@@ -80,14 +80,14 @@ class Store {
             });
         });
     }
-    get(key) {
+    get(key, optionalCallback) {
         return promises_1.createPromise(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
                 promises_1.returnResult(error, ro.get(key), callback, resolve, reject);
             });
         });
     }
-    getByIndex(indexName, indexValue) {
+    getByIndex(indexName, indexValue, optionalCallback) {
         return promises_1.createPromise(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
                 promises_1.returnResult(error, ro.index(indexName).get(indexValue), callback, resolve, reject);
@@ -121,7 +121,7 @@ class Store {
             promises_1.returnResult(error, ro.index(indexName).openCursor(range, direction), callback);
         });
     }
-    update(doc) {
+    update(doc, optionalCallback) {
         return promises_1.createPromise(arguments, (callback, resolve, reject) => {
             this._update(doc, callback, resolve, reject, id => {
                 this.db.push.publish({
@@ -133,7 +133,7 @@ class Store {
             });
         });
     }
-    delete(id) {
+    delete(id, callback) {
         return promises_1.createPromise(arguments, (callback, resolve, reject) => {
             this._delete(id, callback, resolve, reject, () => {
                 this.db.push.publish({
@@ -144,7 +144,7 @@ class Store {
             });
         });
     }
-    count() {
+    count(optionalCallback) {
         return promises_1.createPromise(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
                 promises_1.returnResult(error, ro.count(), callback, resolve, reject);

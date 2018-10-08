@@ -87,7 +87,7 @@ export default class Store implements types.IStore {
     return this.mode(READ_ONLY, callback)
   }
 
-  all(): Promise<object> {
+  all(optionalCallback?: types.ICallback): Promise<object> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(error, ro.openCursor(), callback, resolve, reject)
@@ -95,7 +95,7 @@ export default class Store implements types.IStore {
     })
   }
 
-  add(doc: object): Promise<object> {
+  add(doc: object, optionalCallback?: types.ICallback): Promise<object> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this._add(doc, callback, resolve, reject, id => {
         this.db.push.publish(
@@ -111,7 +111,7 @@ export default class Store implements types.IStore {
     })
   }
 
-  get(key: any): Promise<object> {
+  get(key: any, optionalCallback?: types.ICallback): Promise<object> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(error, ro.get(key), callback, resolve, reject)
@@ -119,7 +119,11 @@ export default class Store implements types.IStore {
     })
   }
 
-  getByIndex(indexName: any, indexValue: any) {
+  getByIndex(
+    indexName: any,
+    indexValue: any,
+    optionalCallback?: types.ICallback
+  ) {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(
@@ -184,7 +188,7 @@ export default class Store implements types.IStore {
     })
   }
 
-  update(doc: object) {
+  update(doc: object, optionalCallback?: types.ICallback) {
     return createPromise(arguments, (callback, resolve, reject) => {
       this._update(doc, callback, resolve, reject, id => {
         this.db.push.publish(
@@ -200,7 +204,7 @@ export default class Store implements types.IStore {
     })
   }
 
-  delete(id: any) {
+  delete(id: any, callback?: types.ICallback) {
     return createPromise(arguments, (callback, resolve, reject) => {
       this._delete(id, callback, resolve, reject, () => {
         this.db.push.publish(
@@ -215,7 +219,7 @@ export default class Store implements types.IStore {
     })
   }
 
-  count(): Promise<number> {
+  count(optionalCallback?: types.ICallback): Promise<number> {
     return createPromise(arguments, (callback, resolve, reject) => {
       this.readOnly((error, ro) => {
         returnResult(error, ro.count(), callback, resolve, reject)

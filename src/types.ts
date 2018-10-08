@@ -62,7 +62,7 @@ export interface IStrictIndexDefinition {
 }
 
 export interface IStoreDefinition {
-  key: string | IKeyDefinition
+  key?: string | IKeyDefinition
   indexes: IIndexDefinition[]
   upgrade?: (store: IStore) => void
   testing?: boolean
@@ -77,24 +77,23 @@ export interface IStore {
   indexes: any[]
   isTestStore: boolean
   onChange: any
-
   customUpgradeFn: (store: IStore) => void | undefined
 
+  add(doc: object, optionalCallback?: ICallback): Promise<object>
+  all(optionalCallback?: ICallback): Promise<object>
   create(db: IDBDatabase, event: Event)
   createIndex(index: IIndexDefinition)
-  upgrade(event: Event)
+  count(optionalCallback?: ICallback): Promise<number>
+  cursor(range: IRange, direction: string, callback: ICallback)
+  delete(id: any, optionalCallback?: ICallback): Promise<object>
+  get(key: any, optionalCallback?: ICallback): Promise<object>
+  getByIndex(indexName: any, indexValue: any, optionalCallback?: ICallback)
   mode(type: string, callback: ICallback): IDBTransaction
+  range(options: IRange): IRange | IDBKeyRange
   readWrite(callback: ICallback): IDBTransaction
   readOnly(callback: ICallback): IDBTransaction
-  all(): Promise<object>
-  add(doc: object, callback?: ICallback): Promise<object>
-  delete(id: any, callback?: ICallback): Promise<object>
-  get(key: any): Promise<object>
-  cursor(range: IRange, direction: string, callback: ICallback)
-  getByIndex(indexName: any, indexValue: any)
-  update(doc: object)
-  count(): Promise<number>
-  range(options: IRange): IRange | IDBKeyRange
+  update(doc: object, optionalCallback?: ICallback)
+  upgrade(event: Event)
 
   indexCursor(
     name: string,

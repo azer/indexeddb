@@ -6,7 +6,7 @@ compile: clean
 
 watch: compile
 	@echo "  >  Watching for changes..."
-	@yolo -i index.ts -i src -c "make compile"
+	@yolo -i src -c "make compile"
 
 clean:
 	@echo "  >  Cleaning..."
