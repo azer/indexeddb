@@ -1,0 +1,35 @@
+import * as types from "./types";
+export default class Store implements types.IStore {
+    name: string;
+    db: types.IDB;
+    idbStore: IDBObjectStore;
+    isSimpleStore: boolean;
+    key: string | types.IKeyDefinition;
+    indexes: types.IIndexDefinition[];
+    isTestStore: boolean;
+    onChange: any;
+    customUpgradeFn: (store: types.IStore) => void | undefined;
+    constructor(name: string, options: types.IStoreDefinition);
+    create(db: IDBDatabase, event: Event): void;
+    createIndex(index: types.IIndexDefinition): void;
+    upgrade(event: Event): void;
+    mode(type: string, callback: types.ICallback): IDBTransaction;
+    readWrite(callback: types.ICallback): IDBTransaction;
+    readOnly(callback: types.ICallback): IDBTransaction;
+    all(): Promise<object>;
+    add(doc: object): Promise<object>;
+    get(key: any): Promise<object>;
+    getByIndex(indexName: any, indexValue: any): any;
+    cursor(range: types.IRange, direction: string, callback: types.ICallback): void;
+    indexCursor(name: string, range: types.IRange, direction: string, callback: types.ICallback): void;
+    onPublish(errors: Error[]): void;
+    select(indexName: string, rangeOptions: null | types.IRange, directionOrCallback: string | types.ICallback, optionalCallback?: types.ICallback): void;
+    update(doc: object): any;
+    delete(id: any): any;
+    count(): Promise<number>;
+    range(options: types.IRange): types.IRange | IDBKeyRange;
+    testing(optionalDB?: types.IDB): types.IStore;
+    _add(doc: object, callback?: types.ICallback, resolve?: types.IResolveFn, reject?: types.IRejectFn, push?: types.IPushFn): void;
+    _delete(id: any, callback: types.ICallback, resolve: types.IResolveFn, reject: types.IRejectFn, push: types.IPushFn): void;
+    _update(doc: object, callback?: types.ICallback, resolve?: types.IResolveFn, reject?: types.IRejectFn, push?: types.IPushFn): void;
+}
