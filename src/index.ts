@@ -6,6 +6,7 @@ import IndexedDBPull from "./indexeddb-pull"
 import * as types from "./types"
 
 export { Push, Pull, IndexedDBPull, types }
+export * from "./types"
 
 export default function createDB(name: string, options: types.IDBOptions) {
   return new DB(name, options)
