@@ -1,6 +1,6 @@
 const idb: IDBFactory | null =
   typeof window === "undefined"
-    ? null
+    ? self && self.indexedDB
     : (window as any).indexedDB ||
       (window as any).webkitIndexedDB ||
       (window as any).mozIndexedDB ||
