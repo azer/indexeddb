@@ -128,7 +128,7 @@ export default class Store implements types.IStore {
       this.readOnly((error, ro) => {
         returnResult(
           error,
-          ro.index(indexName).get(indexValue),
+          ro.index(indexName).getAll(indexValue),
           callback,
           resolve,
           reject

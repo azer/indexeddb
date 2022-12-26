@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const idb = typeof window === "undefined"
-    ? null
+    ? self && self.indexedDB
     : window.indexedDB ||
         window.webkitIndexedDB ||
         window.mozIndexedDB ||
@@ -24,8 +24,8 @@ class DB {
         this.idb.close();
     }
     delete() {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
-            promises_1.returnResult(null, idb.deleteDatabase(this.name), callback, resolve, reject);
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
+            (0, promises_1.returnResult)(null, idb.deleteDatabase(this.name), callback, resolve, reject);
         });
     }
     onUpgradeNeeded(event) {

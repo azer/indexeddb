@@ -62,14 +62,14 @@ class Store {
         return this.mode(READ_ONLY, callback);
     }
     all(optionalCallback) {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
-                promises_1.returnResult(error, ro.openCursor(), callback, resolve, reject);
+                (0, promises_1.returnResult)(error, ro.openCursor(), callback, resolve, reject);
             });
         });
     }
     add(doc, optionalCallback) {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
             this._add(doc, callback, resolve, reject, id => {
                 this.db.push.publish({
                     action: "add",
@@ -81,27 +81,27 @@ class Store {
         });
     }
     get(key, optionalCallback) {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
-                promises_1.returnResult(error, ro.get(key), callback, resolve, reject);
+                (0, promises_1.returnResult)(error, ro.get(key), callback, resolve, reject);
             });
         });
     }
     getByIndex(indexName, indexValue, optionalCallback) {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
-                promises_1.returnResult(error, ro.index(indexName).get(indexValue), callback, resolve, reject);
+                (0, promises_1.returnResult)(error, ro.index(indexName).getAll(indexValue), callback, resolve, reject);
             });
         });
     }
     cursor(range, direction, callback) {
         this.readOnly((error, ro) => {
-            promises_1.returnResult(error, ro.openCursor(this.range(range), direction), callback);
+            (0, promises_1.returnResult)(error, ro.openCursor(this.range(range), direction), callback);
         });
     }
     indexCursor(name, range, direction, callback) {
         this.readOnly((error, ro) => {
-            promises_1.returnResult(error, ro.index(name).openCursor(this.range(range), direction), callback);
+            (0, promises_1.returnResult)(error, ro.index(name).openCursor(this.range(range), direction), callback);
         });
     }
     onPublish(errors) {
@@ -118,11 +118,11 @@ class Store {
             callback = directionOrCallback;
         }
         this.readOnly((error, ro) => {
-            promises_1.returnResult(error, ro.index(indexName).openCursor(range, direction), callback);
+            (0, promises_1.returnResult)(error, ro.index(indexName).openCursor(range, direction), callback);
         });
     }
     update(doc, optionalCallback) {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
             this._update(doc, callback, resolve, reject, id => {
                 this.db.push.publish({
                     action: "update",
@@ -134,7 +134,7 @@ class Store {
         });
     }
     delete(id, callback) {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
             this._delete(id, callback, resolve, reject, () => {
                 this.db.push.publish({
                     action: "delete",
@@ -145,9 +145,9 @@ class Store {
         });
     }
     count(optionalCallback) {
-        return promises_1.createPromise(arguments, (callback, resolve, reject) => {
+        return (0, promises_1.createPromise)(arguments, (callback, resolve, reject) => {
             this.readOnly((error, ro) => {
-                promises_1.returnResult(error, ro.count(), callback, resolve, reject);
+                (0, promises_1.returnResult)(error, ro.count(), callback, resolve, reject);
             });
         });
     }
@@ -167,7 +167,7 @@ class Store {
         return options;
     }
     testing(optionalDB) {
-        const db = optionalDB || index_1.createTestingDB();
+        const db = optionalDB || (0, index_1.createTestingDB)();
         return db.store(this.name, this.isSimpleStore
             ? null
             : {
@@ -179,19 +179,19 @@ class Store {
     }
     _add(doc, callback, resolve, reject, push) {
         this.readWrite((error, rw) => {
-            promises_1.returnResult(error, rw.add(doc), callback, resolve, reject, push);
+            (0, promises_1.returnResult)(error, rw.add(doc), callback, resolve, reject, push);
             this.onChange.publish();
         });
     }
     _delete(id, callback, resolve, reject, push) {
         this.readWrite((error, rw) => {
-            promises_1.returnResult(error, rw.delete(id), callback, resolve, reject, push);
+            (0, promises_1.returnResult)(error, rw.delete(id), callback, resolve, reject, push);
             this.onChange.publish();
         });
     }
     _update(doc, callback, resolve, reject, push) {
         this.readWrite((error, rw) => {
-            promises_1.returnResult(error, rw.put(doc), callback, resolve, reject, push);
+            (0, promises_1.returnResult)(error, rw.put(doc), callback, resolve, reject, push);
             this.onChange.publish();
         });
     }
