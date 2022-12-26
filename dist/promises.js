@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createPromise = exports.returnResult = void 0;
 function returnResult(err, request, callback, resolve, reject, push) {
     if (err) {
         ;
